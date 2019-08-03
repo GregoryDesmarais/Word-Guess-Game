@@ -7,7 +7,7 @@ var audio = new Audio('assets/sounds/correct.mp3');
 //Game Object
 var wordGuess = {
     tries: 0,
-    availWords: ["javascript", "jquery", "css", "html", "bootstrap", "react", "array", "object", "function", 'variable'],
+    availWords: ["javascript", "jquery", "css", "html", "bootstrap", "react", "array", "object", "function", "variable"],
     curWord: "",
     curWordStatus: [],
     usedWords: [],
