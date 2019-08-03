@@ -1,7 +1,8 @@
 var allowedKeys = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z'];
 var gameStatus = document.getElementById("gameStatus");
+var audio = new Audio('assets/sounds/correct.mp3');
 var wordGuess = {
-    tries: 6,
+    tries: 0,
     availWords: ["javascript", "jquery", "css", "html", "bootstrap", "react"],
     // availWords: ["css"],
     curWord: "",
@@ -41,9 +42,9 @@ var wordGuess = {
                 this.curWordStatus.push("_");
             }
         }
+        this.tries = this.curWord.length + 3;
     },
     newGame: function() {
-        this.tries = 15;
         this.curWord = "";
         this.curWordStatus = [];
         this.guessedLetters = [];
@@ -61,15 +62,17 @@ var wordGuess = {
                 word += " ";
             }
         }
-        document.getElementById("curWord").textContent = word;
-        document.getElementById("guessRemain").textContent = this.tries;
-        document.getElementById("guessedLetters").textContent = this.guessedLetters;
         if (this.curWordStatus.indexOf("_") < 0) {
             this.userWins++;
             gameStatus.innerHTML = "You Win!<br>";
             gameStatus.innerHTML += "Press <kbd>Shift</kbd> to play again!";
+            this.tries = 0;
+            audio.play();
             this.usedWords.push(this.curWord);
         }
+        document.getElementById("curWord").textContent = word;
+        document.getElementById("guessRemain").textContent = this.tries;
+        document.getElementById("guessedLetters").textContent = this.guessedLetters;
         document.getElementById("winCount").textContent = this.userWins;
         if (this.usedWords.length === this.availWords.length) {
             gameStatus.innerHTML = "All words solved!";
