@@ -1,49 +1,56 @@
+var allowedKeys = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z'];
+var gameStatus = document.getElementById("gameStatus");
 var wordGuess = {
     tries: 15,
-    availWords: ["javascript", "jquery", "CSS", "HTML", "bootstrap", "react"],
+    availWords: ["javascript", "jquery", "css", "html", "bootstrap", "react"],
+    // availWords: ["css"],
     curWord: "",
     curWordStatus: [],
     usedWords: [],
     userWins: 0,
     guessedLetters: [],
-    letterGuess: function(letter) {
-        if (this.curWord.length > 0) {
-            this.playerGuess(letter);
-        } else {
-            //wordGuess.newGame();
+    letterGuess: function (letter) {
+        if (this.guessedLetters.indexOf(letter) < 0) {
+            this.tries--;
+            if (this.tries === 0) {
+                gameStatus.textContent = "Sorry! No more guesses!";
+            }
+            this.guessedLetters.push(letter);
+            if (this.curWord.length > 0) {
+                for (var i = 0; i < this.curWordStatus.length; i++) {
+                    console.log("letter: " + letter);
+                    if (letter === this.curWord[i]) {
+                        this.curWordStatus[i] = letter;
+                        console.log(this.curWordStatus);
+                    }
+                }
+                this.updateStatus();
+            }
         }
     },
-    pickWord: function() {
+    pickWord: function () {
         var select = Math.floor(Math.random() * this.availWords.length);
         this.curWord = this.availWords[select];
         console.log("Selected word: " + this.curWord);
         if (this.usedWords.indexOf(this.curWord) > -1) {
-            console.log("Word already exists");
-            if (this.usedWords.length === this.availWords.length) {
-                alert("All words solved!\n\nGreat Game!");
-                //wordGuess.newGame();
-            } else {
-                this.pickWord();
-            }
+            this.pickWord();
         } else {
-            console.log(this.curWord)
-            this.usedWords.push(this.curWord);
             this.curWordStatus = [];
             for (var i = 0; i < this.curWord.length; i++) {
                 this.curWordStatus.push("_");
             }
         }
     },
-    newGame: function() {
+    newGame: function () {
         this.tries = 15;
         this.curWord = "";
         this.curWordStatus = [];
-        this.usedWords = [];
-        this.userWins = 0;
-        this.guessedLetters = 0;
+        this.guessedLetters = [];
         this.pickWord();
+        this.updateStatus();
+        gameStatus.textContent = "";
     },
-    displayWord: function() {
+    updateStatus: function () {
         var word = "";
         for (var i = 0; i < this.curWordStatus.length; i++) {
             word += this.curWordStatus[i];
@@ -54,13 +61,37 @@ var wordGuess = {
             }
         }
         document.getElementById("curWord").textContent = word;
+        document.getElementById("guessRemain").textContent = this.tries;
+        document.getElementById("guessedLetters").textContent = this.guessedLetters;
+        if (this.curWordStatus.indexOf("_") < 0) {
+            this.userWins++;
+            gameStatus.textContent = "You Win!";
+            this.usedWords.push(this.curWord);
+        }
+        document.getElementById("winCount").textContent = this.userWins;
+        if (this.usedWords.length === this.availWords.length) {
+            gameStatus.innerHTML = "All words solved!";
+        }
+
     }
 
 
 }
 
-document.onkeyup = function(e) {
-    wordGuess.letterGuess(e.key);
-    //alert(e.key);
-
+document.onkeyup = function (e) {
+    console.log(e.key);
+    if(wordGuess.tries === 0)
+    {
+        
+    }
+    if (e.key == "Shift" && (wordGuess.usedWords.length < wordGuess.availWords.length) && (wordGuess.curWord.split("").length == wordGuess.curWordStatus.length)) {
+        wordGuess.newGame();
+        wordGuess.updateStatus();
+    }
+    else if (allowedKeys.indexOf(e.key) > -1 && (wordGuess.usedWords.length < wordGuess.availWords.length) && wordGuess.tries > 0) {
+        wordGuess.letterGuess(e.key);
+    }
 }
+
+wordGuess.newGame();
+wordGuess.updateStatus();
