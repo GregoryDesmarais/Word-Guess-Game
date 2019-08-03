@@ -1,50 +1,48 @@
+//Globals
+
 var allowedKeys = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z'];
 var gameStatus = document.getElementById("gameStatus");
 var audio = new Audio('assets/sounds/correct.mp3');
+
+//Game Object
 var wordGuess = {
     tries: 0,
-    availWords: ["javascript", "jquery", "css", "html", "bootstrap", "react"],
-    // availWords: ["css"],
+    availWords: ["javascript", "jquery", "css", "html", "bootstrap", "react", "array", "object", "function", 'variable'],
     curWord: "",
     curWordStatus: [],
     usedWords: [],
     userWins: 0,
     guessedLetters: [],
-    letterGuess: function(letter) {
+    letterGuess: function(letter) { //Checks input letter copared to word.
         if (this.guessedLetters.indexOf(letter) < 0) {
-            this.tries--;
+            this.tries--; //Decrement "tries"
             if (this.tries === 0) {
-                gameStatus.innerHTML = "Sorry! No more guesses!<br>";
+                gameStatus.innerHTML = "Sorry! No more guesses!<br>"; //No more "tries", Game Over!
                 gameStatus.innerHTML += "Press <kbd>Shift</kbd> to play again!";
             }
-            this.guessedLetters.push(letter);
-            if (this.curWord.length > 0) {
-                for (var i = 0; i < this.curWordStatus.length; i++) {
-                    console.log("letter: " + letter);
-                    if (letter === this.curWord[i]) {
-                        this.curWordStatus[i] = letter;
-                        console.log(this.curWordStatus);
-                    }
+            this.guessedLetters.push(letter); //Add letter to "guessed" pool.
+            for (var i = 0; i < this.curWordStatus.length; i++) {
+                if (letter === this.curWord[i]) {
+                    this.curWordStatus[i] = letter; //If letter exists, change the _ to the proper letter.
                 }
-                this.updateStatus();
             }
+            this.updateStatus();
         }
     },
-    pickWord: function() {
+    pickWord: function() { //Randomly picks a word from the availWords array.
         var select = Math.floor(Math.random() * this.availWords.length);
         this.curWord = this.availWords[select];
-        console.log("Selected word: " + this.curWord);
-        if (this.usedWords.indexOf(this.curWord) > -1) {
+        if (this.usedWords.indexOf(this.curWord) > -1) { //If the word was already solved, pick another.
             this.pickWord();
         } else {
             this.curWordStatus = [];
-            for (var i = 0; i < this.curWord.length; i++) {
-                this.curWordStatus.push("_");
+            for (var i = 0; i < this.curWord.length; i++) { //create the curWordStatus array to break down each individual letter. 
+                this.curWordStatus.push("_"); //Underscores as placeholders.
             }
         }
-        this.tries = this.curWord.length + 3;
+        this.tries = this.curWord.length + 3; //User tries are equal to selected word length, plus 3.
     },
-    newGame: function() {
+    newGame: function() { //Resets most variables, Selects another word, then updates the page display.
         this.curWord = "";
         this.curWordStatus = [];
         this.guessedLetters = [];
@@ -52,7 +50,7 @@ var wordGuess = {
         this.updateStatus();
         gameStatus.textContent = "";
     },
-    updateStatus: function() {
+    updateStatus: function() { //Updates the game display, including current word, tries, and wins.
         var word = "";
         for (var i = 0; i < this.curWordStatus.length; i++) {
             word += this.curWordStatus[i];
@@ -62,7 +60,7 @@ var wordGuess = {
                 word += " ";
             }
         }
-        if (this.curWordStatus.indexOf("_") < 0) {
+        if (this.curWordStatus.indexOf("_") < 0) { //No underscores?  VICTORY!
             this.userWins++;
             gameStatus.innerHTML = "You Win!<br>";
             gameStatus.innerHTML += "Press <kbd>Shift</kbd> to play again!";
@@ -75,7 +73,7 @@ var wordGuess = {
         document.getElementById("guessedLetters").textContent = this.guessedLetters;
         document.getElementById("winCount").textContent = this.userWins;
         if (this.usedWords.length === this.availWords.length) {
-            gameStatus.innerHTML = "All words solved!";
+            gameStatus.innerHTML = "All words solved!"; //Informs player that all words have been solved.
         }
 
     }
@@ -84,17 +82,14 @@ var wordGuess = {
 }
 
 document.onkeyup = function(e) {
-    console.log(e.key);
-    if (wordGuess.tries === 0) {
-
+        console.log(e.key);
+        if (e.key == "Shift" && (wordGuess.usedWords.length < wordGuess.availWords.length)) {
+            wordGuess.newGame(); //Reset if there are still words available. 
+            wordGuess.updateStatus();
+        } else if (allowedKeys.indexOf(e.key) > -1 && (wordGuess.usedWords.length < wordGuess.availWords.length) && wordGuess.tries > 0) {
+            wordGuess.letterGuess(e.key); //if a-z, then check to see if it is a part of the word.
+        }
     }
-    if (e.key == "Shift" && (wordGuess.usedWords.length < wordGuess.availWords.length) && (wordGuess.curWord.split("").length == wordGuess.curWordStatus.length)) {
-        wordGuess.newGame();
-        wordGuess.updateStatus();
-    } else if (allowedKeys.indexOf(e.key) > -1 && (wordGuess.usedWords.length < wordGuess.availWords.length) && wordGuess.tries > 0) {
-        wordGuess.letterGuess(e.key);
-    }
-}
-
+    //Run game code after declaring everything.  Update page display after.
 wordGuess.newGame();
 wordGuess.updateStatus();
