@@ -1,7 +1,7 @@
 var allowedKeys = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z'];
 var gameStatus = document.getElementById("gameStatus");
 var wordGuess = {
-    tries: 15,
+    tries: 6,
     availWords: ["javascript", "jquery", "css", "html", "bootstrap", "react"],
     // availWords: ["css"],
     curWord: "",
@@ -9,11 +9,12 @@ var wordGuess = {
     usedWords: [],
     userWins: 0,
     guessedLetters: [],
-    letterGuess: function (letter) {
+    letterGuess: function(letter) {
         if (this.guessedLetters.indexOf(letter) < 0) {
             this.tries--;
             if (this.tries === 0) {
-                gameStatus.textContent = "Sorry! No more guesses!";
+                gameStatus.innerHTML = "Sorry! No more guesses!<br>";
+                gameStatus.innerHTML += "Press <kbd>Shift</kbd> to play again!";
             }
             this.guessedLetters.push(letter);
             if (this.curWord.length > 0) {
@@ -28,7 +29,7 @@ var wordGuess = {
             }
         }
     },
-    pickWord: function () {
+    pickWord: function() {
         var select = Math.floor(Math.random() * this.availWords.length);
         this.curWord = this.availWords[select];
         console.log("Selected word: " + this.curWord);
@@ -41,7 +42,7 @@ var wordGuess = {
             }
         }
     },
-    newGame: function () {
+    newGame: function() {
         this.tries = 15;
         this.curWord = "";
         this.curWordStatus = [];
@@ -50,7 +51,7 @@ var wordGuess = {
         this.updateStatus();
         gameStatus.textContent = "";
     },
-    updateStatus: function () {
+    updateStatus: function() {
         var word = "";
         for (var i = 0; i < this.curWordStatus.length; i++) {
             word += this.curWordStatus[i];
@@ -65,7 +66,8 @@ var wordGuess = {
         document.getElementById("guessedLetters").textContent = this.guessedLetters;
         if (this.curWordStatus.indexOf("_") < 0) {
             this.userWins++;
-            gameStatus.textContent = "You Win!";
+            gameStatus.innerHTML = "You Win!<br>";
+            gameStatus.innerHTML += "Press <kbd>Shift</kbd> to play again!";
             this.usedWords.push(this.curWord);
         }
         document.getElementById("winCount").textContent = this.userWins;
@@ -78,17 +80,15 @@ var wordGuess = {
 
 }
 
-document.onkeyup = function (e) {
+document.onkeyup = function(e) {
     console.log(e.key);
-    if(wordGuess.tries === 0)
-    {
-        
+    if (wordGuess.tries === 0) {
+
     }
     if (e.key == "Shift" && (wordGuess.usedWords.length < wordGuess.availWords.length) && (wordGuess.curWord.split("").length == wordGuess.curWordStatus.length)) {
         wordGuess.newGame();
         wordGuess.updateStatus();
-    }
-    else if (allowedKeys.indexOf(e.key) > -1 && (wordGuess.usedWords.length < wordGuess.availWords.length) && wordGuess.tries > 0) {
+    } else if (allowedKeys.indexOf(e.key) > -1 && (wordGuess.usedWords.length < wordGuess.availWords.length) && wordGuess.tries > 0) {
         wordGuess.letterGuess(e.key);
     }
 }
